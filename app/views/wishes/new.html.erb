@@ -1,0 +1,39 @@
+<div class="container pt-3">
+　<h4 class="col-md-3 offset-1 bg-light text-center mt-2">商品新規登録</h4>
+
+　<div class="row pt-4">
+    <%= form_with model:@wish, local:true do |f| %>
+     <table class="table mx-auto table-borderless">
+       <% if @wish.errors.any? %>
+          <span class="text-danger"><%= @wish.errors.count %>件のエラーが発生しました</span>
+          <ul class="text-danger">
+          <% @wish.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+          </ul>
+        <% end %>
+       <tbody>
+        <tr>
+          <td>商品画像</td>
+          <td><%= f.attachment_field :image %></td>
+        </tr>
+        <tr>
+          <td>商品名</td>
+          <td><%= f.text_field :wish_title, placeholder: "商品名" %></td>
+        </tr>
+        <tr>
+          <td>商品説明</td>
+          <td><%= f.text_area :memo, placeholder: "ここに説明文を記述" %></td>
+        </tr>
+        <tr>
+          <td>tag</td>
+          <td><%= f.text_field :tag_name, placeholder: "スペースを入力することで複数のタグを付けることができます。" %></td>
+        </tr>
+       
+      </tbody>
+    </table>
+    <%= f.submit "新規登録", class: "btn btn-success my-2" %>
+
+    <% end %>
+　</div>
+</div>

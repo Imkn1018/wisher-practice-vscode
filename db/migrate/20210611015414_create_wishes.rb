@@ -7,7 +7,7 @@ class CreateWishes < ActiveRecord::Migration[5.2]
       t.string :wish_image_id
       t.timestamp :span
       t.integer :difficutly
-      t.boolean :isCompleted
+      t.boolean :isCompleted, default: false, null: false
       t.string :url
 
       t.timestamps
