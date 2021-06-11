@@ -1,0 +1,2 @@
+class CompleteReviewsController < ApplicationController
+end
