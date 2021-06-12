@@ -4,7 +4,7 @@ class Wish < ApplicationRecord
   has_many :tags, through: :wish_tag_relationships
   belongs_to:user, required: true
 
-  attachment :image
+  attachment :wish_image
 
   def save_tag(sent_tags)
     current_tags = self.tags.pluck(:tag_name) unless self.tags.nil?

@@ -5,7 +5,7 @@ class WishesController < ApplicationController
   end
   def index
        user = User.find_by(id: current_user.id)
-       @wishes = user.wishes
+       @wishes = user.wishes.where(:isCompleted => false)
        @wish = current_user.wishes.new
        @tag_list = Tag.all
 
@@ -21,37 +21,39 @@ class WishesController < ApplicationController
     end
   end
 
-      def show
-        @wish = Wish.find_by(params[:id])
-        @wish_tags = @wish.tags
-      end
+  def show
+    @wish = Wish.find(params[:id])
+    @wish_tags = @wish.tags
+    @review = CompleteReview.new
+  end
 
-      def edit
-        @wish = Wish.find_by(params[:id])
-      end
+  def edit
+    @wish = Wish.find_by(params[:id])
+  end
 
-    def update
-      @wish = Wish.find_by(params[:id])
-      tag_list = params[:wish][:tag_name].split(nil)
-      if @wish.save
-        @wish.save_tag(tag_list)
-        redirect_back(fallback_location: root_path)
-      else
-        redirect_back(fallback_location: root_path)
-      end
+  def update
+    @wish = Wish.find(params[:id])
+    tag_list = params[:wish][:tag_name].split(nil)
+    if @wish.save
+      @wish.save_tag(tag_list)
+      redirect_back(fallback_location: root_path)
+    else
+      redirect_back(fallback_location: root_path)
     end
+  end
 
     def complete
-      @wish = Wish.find_by(params[:id])
+      @wish = Wish.find(params[:id])
       @wish.update(isCompleted: true)
+      redirect_to new_wish_complete_review_path(@wish)
     end
-     def dones
-        user = User.find_by(id: current_user.id)
-        @wishes = user.Wish.where(:isCompleted => true)..order("due_date")
-     end
+   def dones
+      user = User.find_by(id: current_user.id)
+      @wishes = user.wishes.where(:isCompleted => true)
+   end
       private
 
       def wish_params
-        params.require(:wish).permit(:wish_title,:memo,:wish_image_id,:span,:difficulty,:url)
+        params.require(:wish).permit(:wish_title,:memo,:wish_image,:span,:difficulty,:url)
       end
 end
