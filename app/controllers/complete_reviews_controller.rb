@@ -12,9 +12,7 @@ class CompleteReviewsController < ApplicationController
     redirect_to wish_path(wish)
   end
 
-　def show
-　  @review = CompleteReview.find(params[:id],wish_id: params[:wish_id])
-　end
+
 
   private
 
