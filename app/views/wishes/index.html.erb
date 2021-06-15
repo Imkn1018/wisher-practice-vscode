@@ -16,3 +16,11 @@ index
 <% end %>
 </tbody>
 </table>
+ <%= react_component("organisms/Index/WishesIndex",{title: "aaa",image:"",memo: "memo" }) %>  
+
+<% @wishes.each do |wish| %>
+ <%= react_component("organisms/Index/WishesIndex",{title: wish.wish_title,image: wish.wish_image,memo: wish.memo }) %>  
+<% end %>
+<%= react_component("organisms/modal/NewWishModal",{wishTitle: @wish.wish_title}) %> 
+<%= react_component("Button") %> 
+
