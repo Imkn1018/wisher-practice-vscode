@@ -17,12 +17,36 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { memo, VFC, useState, useEffect, ChangeEvent } from 'react';
+import { useHistory } from 'react-router-dom';
+import axios from 'axios';
 
-function NewWishModal({ name }) {
+function NewWishModal() {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const history = useHistory();
   const [wishTitle, setWishTitle] = useState('');
   const [memo, setMemo] = useState('');
   const [imageUrl, setImgaeUrl] = useState('');
+  const [tag, setTag] = useState('');
+
+  const postWish = (params) => {
+    axios.post('/wishes', {
+      wish_title: wishTitle,
+      memo: memo,
+      tag_name: tag,
+      wish_image_id: imageUrl,
+    });
+    axios.post('/tags', {
+      tag_name: tag,
+    });
+    axios.post('/wish_tag_relationships', {
+      wish_id: params.wish_id,
+      tag_id: params.tag_id,
+    });
+    setWishTitle('');
+    setMemo('');
+    setTag('');
+    onClose();
+  };
   return (
     <ChakraProvider>
       <Button onClick={onOpen}>OpenButton</Button>
@@ -58,6 +82,10 @@ function NewWishModal({ name }) {
                     onChange={(e) => setMemo(e.target.value)}
                   />
                 </FormControl>
+                <FormControl>
+                  <FormLabel>tag</FormLabel>
+                  <Input value={tag} onChange={(e) => setTag(e.target.value)} />
+                </FormControl>
 
                 <FormControl>
                   <FormLabel>Image</FormLabel>
@@ -74,6 +102,9 @@ function NewWishModal({ name }) {
                 {imageUrl && <Image src={imageUrl} />}
               </Stack>
             </ModalBody>
+            <ModalFooter>
+              <Button onClick={postWish}></Button>
+            </ModalFooter>
           </ModalContent>
         </ModalOverlay>
       </Modal>

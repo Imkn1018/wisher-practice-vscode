@@ -7,4 +7,6 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:sign_up,keys: [:name,  :introduction, :user_image_id])
   end
 
+
+  
 end

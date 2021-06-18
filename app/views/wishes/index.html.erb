@@ -1,5 +1,7 @@
 index
-<table class="table table-bordered border-dark">
+<%
+=begin%>
+ <table class="table table-bordered border-dark">
  <tbody>
 <% @wishes.each do |wish| %>
   <tr>
@@ -15,12 +17,11 @@ index
   </tr>
 <% end %>
 </tbody>
-</table>
- <%= react_component("organisms/Index/WishesIndex",{title: "aaa",image:"",memo: "memo" }) %>  
+</table> 
+<%
+=end%>
+<%= react_component("organisms/Index/WishesIndex",{wishes: @wishes, relations: @relations ,tags: @tag_list}) %>  
 
-<% @wishes.each do |wish| %>
- <%= react_component("organisms/Index/WishesIndex",{title: wish.wish_title,image: wish.wish_image,memo: wish.memo }) %>  
-<% end %>
-<%= react_component("organisms/modal/NewWishModal",{wishTitle: @wish.wish_title}) %> 
+<%= react_component("organisms/modal/NewWishModal") %> 
 <%= react_component("Button") %> 
 

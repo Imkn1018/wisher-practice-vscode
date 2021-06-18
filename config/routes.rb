@@ -11,4 +11,8 @@ Rails.application.routes.draw do
   get "dones" => "wishes#dones",as: :wishes_dones
   patch "wishes/:id/complete" => "wishes#complete", as: :wishes_complete
   resources :tags
+  scope "spa" do
+    get "*path", to:  'spa_roots#show'
+  end
+  post "/wish_tag_relationships", to: "wish_tag_relationships#create"
 end
