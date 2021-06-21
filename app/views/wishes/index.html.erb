@@ -1,16 +1,18 @@
 index
-<%
-=begin%>
+
  <table class="table table-bordered border-dark">
  <tbody>
 <% @wishes.each do |wish| %>
+ 
   <tr>
     <td>
-      <%= link_to wish_path(wish.id) do %>
+      
         <%= attachment_image_tag wish, :wish_image , size:'200x200'%>
-      <% end %>
+      
     </td>
-    <td class="derivery-info"><%= wish.wish_title %></td>
+    
+      <td class="derivery-info"><%= link_to wish.wish_title,wish_path(wish.id) %></td>
+    
     <td class="derivery-info"><%= wish.memo %></td>
     <td class="text-center">
     </td>
@@ -18,8 +20,7 @@ index
 <% end %>
 </tbody>
 </table> 
-<%
-=end%>
+
 <%= react_component("organisms/Index/WishesIndex",{wishes: @wishes, relations: @relations ,tags: @tag_list}) %>  
 
 <%= react_component("organisms/modal/NewWishModal") %> 

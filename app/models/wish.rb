@@ -8,14 +8,14 @@ class Wish < ApplicationRecord
 
   def save_tag(tags,current_user)
     # タグテーブルのtag_nameカラムの一覧を取り出す
-    current_tags = self.tags.pluck(:tag_name) unless self.tags.nil?
+    current_tags = tags.pluck(:tag_name) unless tags.nil?
     # 既存のタグの配列から配列を除外
     old_tags = current_tags - tags
     #
     new_tags = tags - current_tags
 
     old_tags.each do |old|
-      self.tags.delete Tag.find_by(tag_name: old)
+      tags.delete Tag.find_by(tag_name: old)
     end
 
     new_tags.each do |new|

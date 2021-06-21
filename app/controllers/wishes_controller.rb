@@ -1,6 +1,6 @@
 class WishesController < ApplicationController
   before_action :authenticate_user!
-  protect_from_forgery :except => [:create]
+  protect_from_forgery :except => [:create,:update]
   def new
     @wish = current_user.wishes.new
   end
@@ -9,6 +9,7 @@ class WishesController < ApplicationController
      user = User.find_by(id: current_user.id)
      @tag_list = user.tags.all
      @relations = WishTagRelationship.all
+     
     #  タグ内の叶えたいこと一覧表示
      if params[:tag_id]
 
@@ -39,6 +40,7 @@ class WishesController < ApplicationController
   def show
     @wish = Wish.find(params[:id])
     @wish_tags = @wish.tags
+    @reviews = @wish.complete_reviews
     @review = CompleteReview.new
   end
 
@@ -49,10 +51,12 @@ class WishesController < ApplicationController
 
   def update
     @wish = Wish.find(params[:id])
-    tag_list = params[:wish][:tag_name].split(nil)
+    tag_list = params[:tag_name].split(nil)
     if @wish.save
+      
       @wish.save_tag(tag_list,current_user)
-      redirect_to wish_path(@wish)
+      head :no_content
+      # redirect_to wish_path(@wish)
     else
       render :edit
     end

@@ -15,4 +15,5 @@ Rails.application.routes.draw do
     get "*path", to:  'spa_roots#show'
   end
   post "/wish_tag_relationships", to: "wish_tag_relationships#create"
+  delete "wish_tag_relationships/destroy", to: "wish_tag_relationships#destroy"
 end

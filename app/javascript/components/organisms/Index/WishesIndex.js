@@ -15,8 +15,11 @@ import {
   useDisclosure,
   Button,
   ModalFooter,
+  FormControl,
+  FormLabel,
+  Input,
 } from '@chakra-ui/react';
-import axios from 'axios';
+
 import React from 'react';
 import {
   memo,
@@ -26,8 +29,10 @@ import {
   ChangeEvent,
   useCallback,
 } from 'react';
+import axios from 'axios';
 import { useHistory, BrowserRouter } from 'react-router-dom';
 import { useSelectWish } from '../../../hooks/useSelectWish';
+import EditWishModal from '../modal/EditWishModal';
 
 function WishesIndex(props) {
   const { wishes, relations, tags } = props;
@@ -35,6 +40,10 @@ function WishesIndex(props) {
   const [selectedWish, setSelectedWish] = useState([]);
   const [selectedRelation, setSelectedRelation] = useState([]);
   const [selectedWishTags, setSelectedWishTags] = useState([]);
+  const [wishTitle, setWishTitle] = useState('');
+  const [memo, setMemo] = useState('');
+  const [imageUrl, setImgaeUrl] = useState('');
+  const [tag, setTag] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -45,69 +54,79 @@ function WishesIndex(props) {
     setIsEditModalOpen(false);
   };
 
-  const onClickSelectWish = useCallback(
-    (id) => {
-      const targetWish = wishes.find((wish) => wish.id === id);
-      setSelectedWish(targetWish);
-      console.log(relations);
-      console.log(tags);
-      // relation
-      const targetRelation = relations.filter(
-        (relation) => selectedWish.id === relation.wish_id
-      );
-      setSelectedRelation(targetRelation);
-      // 複数のrelationがある場合もある
-      // tag
-      selectedRelation.map((relation) => {
-        const targetTags = tags.filter((tag) => relation.tag_id === tag.id);
-        setSelectedWishTags(targetTags);
-      });
-      console.log(selectedRelation);
-      console.log(selectedWishTags);
-      onOpen();
-    },
-    [wishes, selectedWish, selectedRelation, onOpen]
-  );
+  // wish.idを基に該当のwishを選択→モーダル表示
+  const onClickSelectWish = (id) => {
+    const targetWish = wishes.find((wish) => wish.id === id);
+    const targetRelation = relations.filter(
+      (relation) => targetWish.id === relation.wish_id
+    );
+    const relationIds = targetRelation.map((ralation) => {
+      return ralation.tag_id;
+    });
+    const targetTags = tags.filter((tag) => relationIds.includes(tag.id));
+    // state更新
+    setSelectedWish(targetWish);
+    setSelectedRelation(targetRelation);
+    setSelectedWishTags(targetTags);
+    // モーダルオープン
+    onOpen();
+  };
+  // 更新処理
+  const updateWish = (params) => {
+    axios.patch(`/wishes/${selectedWish.id}`, {
+      wish_title: 'aaa',
+      memo: 'aaaa',
+      tag_name: '',
+      wish_image_id: '',
+    });
+    axios.delete(`/wish_tag_relationships/destroy`, { selectedRelation });
+    axios.post('/tags', {
+      tag_name: tag,
+    });
+    axios.post('/wish_tag_relationships', {
+      wish_id: params.wish_id,
+      tag_id: params.tag_id,
+    });
+    setWishTitle('');
+    setMemo('');
+    setTag('');
+    setIsEditModalOpen(false);
+    onClose();
+  };
   return (
     <ChakraProvider>
       <Wrap p={{ base: 4, md: 10 }} justify="center">
-        {wishes.map((wish, id) => (
-          <WrapItem key={id}>
-            <Box
-              w="300px"
-              h="300px"
-              bg="white"
-              borderRadius="10px"
-              shadow="md"
-              p={4}
-              _hover={{ cursor: 'pointer', opacity: 0.8 }}
-              onClick={() => {
-                onClickSelectWish(wish.id);
-                console.log(selectedWish.id);
-                console.log(selectedWishTags);
-              }}
-            >
-              <Stack textAlign="center">
-                <Image
-                  boxSize="160px"
-                  borderRadius="full"
-                  src={wish.image}
-                  alt={wish.wish_title}
-                  m="auto"
-                />
-                <Text fontSize="lg" fontWeight="bold">
-                  {wish.wish_title}
-                </Text>
-                <Text fontSize="sm" color="gray">
-                  {wish.memo}
-                </Text>
-                {wish?.tags?.map((wishTag) => (
-                  <Text>{wishTag.tag_name}</Text>
-                ))}
-              </Stack>
-            </Box>
-          </WrapItem>
-        ))}
+        {wishes &&
+          wishes.map((wish, id) => (
+            <WrapItem key={id}>
+              <Box
+                w="300px"
+                h="300px"
+                bg="white"
+                borderRadius="10px"
+                shadow="md"
+                p={4}
+                _hover={{ cursor: 'pointer', opacity: 0.8 }}
+                onClick={() => onClickSelectWish(wish.id)}
+              >
+                <Stack textAlign="center">
+                  <Image
+                    boxSize="160px"
+                    borderRadius="full"
+                    src={wish.image}
+                    alt={wish.wish_title}
+                    m="auto"
+                  />
+                  <Text fontSize="lg" fontWeight="bold">
+                    {wish.wish_title}
+                  </Text>
+                  <Text fontSize="sm" color="gray">
+                    {wish.memo}
+                  </Text>
+                </Stack>
+              </Box>
+            </WrapItem>
+          ))}
       </Wrap>
 
       <Modal
@@ -135,8 +154,9 @@ function WishesIndex(props) {
                 <Text fontSize="sm" color="gray">
                   {selectedWish?.memo}
                 </Text>
-
-                <Text>{selectedWish.tags?.tag_name}</Text>
+                {selectedWishTags.map((tag) => (
+                  <Text key={tag.id}>{tag.tag_name}</Text>
+                ))}
               </Stack>
             </ModalBody>
             <ModalFooter>
@@ -147,39 +167,13 @@ function WishesIndex(props) {
       </Modal>
 
       {isEditModalOpen && (
-        <Modal
+        <EditWishModal
           isOpen={isOpen}
           onClose={onClose}
-          autoFocus={false}
-          motionPreset="scale"
-        >
-          <ModalOverlay>
-            <ModalContent pb={2}>
-              <ModalHeader>Edit</ModalHeader>
-              <ModalCloseButton onClick={onCloseEdit} />
-              <ModalBody mx={4}>
-                <Stack textAlign="center">
-                  <Image
-                    boxSize="160px"
-                    borderRadius="full"
-                    src=""
-                    alt={selectedWish.wish_title}
-                    m="auto"
-                  />
-                  <Text fontSize="lg" fontWeight="bold">
-                    {selectedWish.wish_title}
-                  </Text>
-                  <Text fontSize="sm" color="gray">
-                    {selectedWish.memo}
-                  </Text>
-                </Stack>
-              </ModalBody>
-              <ModalFooter>
-                <Button onClick={onOpenEdit}>Edit</Button>
-              </ModalFooter>
-            </ModalContent>
-          </ModalOverlay>
-        </Modal>
+          wish={selectedWish}
+          tags={selectedWishTags}
+          updateWish={updateWish}
+        />
       )}
     </ChakraProvider>
   );

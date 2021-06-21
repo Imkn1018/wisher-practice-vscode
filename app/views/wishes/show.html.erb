@@ -14,13 +14,13 @@
  <div class="row">
    <% if @wish.isCompleted == false %>
      <div class="mx-auto">
-    <%= link_to "叶えられた！", wishes_complete_path(@wish.id),method: :patch ,class:"btn btn-danger ml-4"%>
+    <%= link_to "叶えられた！", new_wish_complete_review_path(@wish.id),method: :patch ,class:"btn btn-danger ml-4"%>
     </div>
     <% end  %>
  </div>
 
 
-<p>コメント件数：<%= @wish.complete_reviews.count %></p>
+<p>コメント件数：<%= @reviews.count %></p>
 <% @wish.complete_reviews.each do |complete_review| %>
 
   <%= complete_review.review_title %>
@@ -39,3 +39,10 @@
   <%= f.submit "送信する" %>
 <% end %>
 </div>
+<%= react_component("organisms/Index/ReviewIndex",{wish:@wish, completeReviews: @reviews}) %>  
+
+<%
+=begin%>
+ <%= react_component("organisms/modal/NewReviewModal",{wish: @wish}) %>   
+<%
+=end%>
